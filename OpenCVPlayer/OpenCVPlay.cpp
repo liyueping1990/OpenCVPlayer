@@ -17,7 +17,8 @@ bool OpenCVPlay::OpenCam()
 	bool isOpen = mVideoCap.isOpened();
 	if (isOpen)
 	{
-		std::thread(&OpenCVPlay::DecodCam, this).join();
+		//mThread = std::move(std::thread(&OpenCVPlay::DecodCam, this));
+		//mThread.detach();
 	}
 	
 	return isOpen;
@@ -28,23 +29,7 @@ void OpenCVPlay::DecodCam()
 {
 	mMutex.lock();
 	mVideoCap.read(mPic);
-	cv::imshow("123", mPic);
 	mMutex.unlock();
-	_sleep(1);
-}
-
-void OpenCVPlay::ShowCam()
-{
-	if (mPic.data)
-	{
-		cv::imshow("cam", mPic);
-		//cv::waitKey(1);
-	}	
-	else
-	{
-		DecodCam();
-		ShowCam();
-	}
 }
 
 QImage OpenCVPlay::ToQimage()

@@ -14,6 +14,6 @@ public:
 	virtual ~MyOpenGLWidget();
 
 private:
+	OpenCVPlay play;
 	QImage image;
 };
-

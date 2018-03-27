@@ -9,9 +9,14 @@ public:
 	OpenCVPlay();
 	virtual ~OpenCVPlay();
 
+	static OpenCVPlay* getInstance()
+	{
+		OpenCVPlay oplay;
+		return &oplay;
+	}
+
 	bool OpenCam();
 	void DecodCam();
-	void ShowCam();
 	QImage ToQimage();
 
 protected:
@@ -19,5 +24,6 @@ protected:
 	cv::Mat mPic;
 	QImage mQimage;
 	std::mutex mMutex;
+	std::thread mThread;
 };
 
