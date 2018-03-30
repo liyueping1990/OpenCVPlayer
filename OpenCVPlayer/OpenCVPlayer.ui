@@ -14,7 +14,7 @@
    <string>OpenCVPlayer</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="MyOpenGLWidget" name="openGLWidget">
+   <widget class="MyOpenGLWidget" name="myOpenGLWidget">
     <property name="geometry">
      <rect>
       <x>0</x>

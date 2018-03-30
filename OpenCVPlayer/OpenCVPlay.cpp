@@ -1,4 +1,5 @@
 #include "OpenCVPlay.h"
+#include <opencv2/imgproc/imgproc.hpp> 
 #pragma comment(lib, "opencv_world341d.lib")
 
 
@@ -11,10 +12,11 @@ OpenCVPlay::~OpenCVPlay()
 {
 }
 
-bool OpenCVPlay::OpenCam()
+bool OpenCVPlay::OpenCam(int id)
 {
-	mVideoCap.open(0);
-	bool isOpen = mVideoCap.isOpened();
+	mVideoCap.open(id);
+	this->mPlayID = id;
+	isOpen = mVideoCap.isOpened();
 	if (isOpen)
 	{
 		mThread = std::move(std::thread(&OpenCVPlay::DecodCam, this));
@@ -27,7 +29,7 @@ bool OpenCVPlay::OpenCam()
 
 void OpenCVPlay::DecodCam()
 {
-	while (true)
+	while (true || this->isOpen)
 	{
 		mMutex.lock();
 		mVideoCap.read(mPic);
@@ -36,13 +38,34 @@ void OpenCVPlay::DecodCam()
 	}
 }
 
-QImage OpenCVPlay::ToQimage()
-{
+QImage OpenCVPlay::ToQimage(int w, int h)
+{	
+	//resize(temImage, dstImage1, Size(temImage.cols / 2, temImage.rows / 2), 0, 0, INTER_LINEAR);
+	if (!this->isOpen)
+	{
+		QImage image;
+		return image;
+	}
+
+	cv::Mat dstMat;
+	if (w == 0 && h == 0)
+	{
+		dstMat = mPic.clone();
+	}
+	else
+	{
+		cv::Size dsize = cv::Size(w, h);
+		cv::Mat temp = cv::Mat(dsize, CV_32S);
+		cv::resize(mPic, dstMat, dsize);
+		//dstMat = temp.clone();
+	}
+
+
 	mMutex.lock();
 	// 8-bits unsigned, NO. OF CHANNELS = 1  
-	if (mPic.type() == CV_8UC1)
+	if (dstMat.type() == CV_8UC1)
 	{
-		QImage image(mPic.cols, mPic.rows, QImage::Format_Indexed8);
+		QImage image(dstMat.cols, dstMat.rows, QImage::Format_Indexed8);
 		// Set the color table (used to translate colour indexes to qRgb values)  
 		image.setColorCount(256);
 		for (int i = 0; i < 256; i++)
@@ -50,33 +73,33 @@ QImage OpenCVPlay::ToQimage()
 			image.setColor(i, qRgb(i, i, i));
 		}
 		// Copy input Mat  
-		uchar *pSrc = mPic.data;
-		for (int row = 0; row < mPic.rows; row++)
+		uchar *pSrc = dstMat.data;
+		for (int row = 0; row < dstMat.rows; row++)
 		{
 			uchar *pDest = image.scanLine(row);
-			memcpy(pDest, pSrc, mPic.cols);
-			pSrc += mPic.step;
+			memcpy(pDest, pSrc, dstMat.cols);
+			pSrc += dstMat.step;
 		}
 		mMutex.unlock();
 		return image;
 	}
 	// 8-bits unsigned, NO. OF CHANNELS = 3  
-	else if (mPic.type() == CV_8UC3)
+	else if (dstMat.type() == CV_8UC3)
 	{
 		// Copy input Mat  
-		const uchar *pSrc = (const uchar*)mPic.data;
+		const uchar *pSrc = (const uchar*)dstMat.data;
 		// Create QImage with same dimensions as input Mat  
-		QImage image(pSrc, mPic.cols, mPic.rows, mPic.step, QImage::Format_RGB888);
+		QImage image(pSrc, dstMat.cols, dstMat.rows, dstMat.step, QImage::Format_RGB888);
 		mMutex.unlock();
 		return image.rgbSwapped();
 	}
-	else if (mPic.type() == CV_8UC4)
+	else if (dstMat.type() == CV_8UC4)
 	{
 		//qDebug() << "CV_8UC4";
 		// Copy input Mat  
-		const uchar *pSrc = (const uchar*)mPic.data;
+		const uchar *pSrc = (const uchar*)dstMat.data;
 		// Create QImage with same dimensions as input Mat  
-		QImage image(pSrc, mPic.cols, mPic.rows, mPic.step, QImage::Format_ARGB32);
+		QImage image(pSrc, dstMat.cols, dstMat.rows, dstMat.step, QImage::Format_ARGB32);
 		mMutex.unlock();
 		return image.copy();
 	}
@@ -86,4 +109,10 @@ QImage OpenCVPlay::ToQimage()
 		mMutex.unlock();
 		return QImage();
 	}
+}
+
+void OpenCVPlay::CloseCam()
+{
+	this->isOpen = false;
+	mVideoCap.release();
 }

@@ -7,12 +7,11 @@ MyOpenGLWidget::MyOpenGLWidget()
 MyOpenGLWidget::MyOpenGLWidget(QWidget * p) : QOpenGLWidget(p)
 {
 	startTimer(1);
-	play.OpenCam();
 }
 
 void MyOpenGLWidget::paintEvent(QPaintEvent * e)
 {
-	image = play.ToQimage();
+	image = ToQimage(0, this->width(), this->height());
 
 	QPainter painter;
 	painter.begin(this);

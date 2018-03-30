@@ -28,7 +28,7 @@ class Ui_OpenCVPlayerClass
 {
 public:
     QWidget *centralWidget;
-    MyOpenGLWidget *openGLWidget;
+    MyOpenGLWidget *myOpenGLWidget;
     QPushButton *pushButton;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
@@ -41,11 +41,11 @@ public:
         OpenCVPlayerClass->resize(640, 640);
         centralWidget = new QWidget(OpenCVPlayerClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
-        openGLWidget = new MyOpenGLWidget(centralWidget);
-        openGLWidget->setObjectName(QStringLiteral("openGLWidget"));
-        openGLWidget->setGeometry(QRect(0, 0, 640, 480));
-        openGLWidget->setMouseTracking(false);
-        openGLWidget->setTabletTracking(false);
+        myOpenGLWidget = new MyOpenGLWidget(centralWidget);
+        myOpenGLWidget->setObjectName(QStringLiteral("myOpenGLWidget"));
+        myOpenGLWidget->setGeometry(QRect(0, 0, 640, 480));
+        myOpenGLWidget->setMouseTracking(false);
+        myOpenGLWidget->setTabletTracking(false);
         pushButton = new QPushButton(centralWidget);
         pushButton->setObjectName(QStringLiteral("pushButton"));
         pushButton->setGeometry(QRect(250, 510, 101, 41));

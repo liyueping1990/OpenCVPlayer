@@ -4,6 +4,8 @@
 #include <qpainter.h>
 #include "OpenCvPlay.h"
 
+extern QImage ToQimage(int id, int w, int h);
+
 class MyOpenGLWidget : public QOpenGLWidget
 {
 public:
@@ -14,6 +16,6 @@ public:
 	virtual ~MyOpenGLWidget();
 
 private:
-	OpenCVPlay play;
+	int mPlayID;
 	QImage image;
 };
